@@ -16,7 +16,6 @@ async function showAll(url){
         if (!response.ok) throw new Error(response.message);
         let data = await response.json();
         data.forEach(d => {
-            // div.innerHTML += `<p id="${d.id}">${d.title}</p>`
             let link = document.createElement("p");
             link.id = d.id;
             link.textContent = d.title;
@@ -31,22 +30,23 @@ async function showAll(url){
 
 async function showDetail(id) {
     try {
-        // let id = parseInt(prompt("Id de la pelicula", "1"));
         div.innerHTML = "";
         let response = await fetch(url + `/${id}`);
         if (!response.ok) throw new Error(response.message);
         let data = await response.json();
         let actors = await Promise.all(data.actors.map(a => getActor(a)));
-        let actorsHTML = "<h3>Actores:</h3>";
+        let actorsDiv = document.createElement("div");
+        actorsDiv.id = "actorsDiv";
+        actorsDiv.textContent = "Actores: "
         actors.forEach(a => {
-            // actorsHTML += `<p id="${a.id}">${a.name}</p>`
             let actorLink = document.createElement("p");
             actorLink.id = a.id;
             actorLink.textContent = a.name;
             actorLink.addEventListener("click", () => showActorDetail(actorLink.id));
-            div.appendChild(actorLink);
+            actorsDiv.appendChild(actorLink);
         })
-        div.innerHTML += `<h1>${data.title}</h1><p>Año: ${data.year}</p><p>Año: ${data.runtime}</p>` + actorsHTML;
+        div.innerHTML += `<h1>${data.title}</h1><p>Año: ${data.year}</p><p>Año: ${data.runtime}</p>`;
+        div.appendChild(actorsDiv);
     } catch (error) {
         console.error(error);
     }
@@ -63,7 +63,15 @@ async function getActor(id) {
 }
 
 async function showActorDetail(id) {
-    console.log(id);
+    div.innerHTML = "";
+    try{
+        let response = await fetch(`http://localhost:3000/actors/${id}`);
+        if (!response.ok) throw new Error(response.message);
+        let data = await response.json();
+        div.innerHTML = `<h2>${data.name}</h2><p>Fecha de nacimiento: ${data.birthYear}</p>`
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 
